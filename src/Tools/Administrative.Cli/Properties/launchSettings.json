@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Administrative.Cli": {
+      "commandName": "Project"
+    }
+  }
+}

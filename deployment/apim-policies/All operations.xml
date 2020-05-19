@@ -1,0 +1,14 @@
+<policies>
+    <inbound>
+        <base />
+    </inbound>
+    <backend>
+        <forward-request timeout="230" fail-on-error-status-code="true" />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

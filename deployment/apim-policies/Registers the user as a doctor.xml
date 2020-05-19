@@ -1,0 +1,31 @@
+<policies>
+    <inbound>
+        <set-variable name="accessToken" value="@(context.Request.Headers.GetValueOrDefault("Authorization"))" />
+        <send-request mode="copy" response-variable-name="medicalRegisterResponse">
+            <set-url>{{userApiBaseUrl}}/api/v1/account/nominateAsMedical</set-url>
+        </send-request>
+		<choose>
+            <when condition="@(((IResponse)context.Variables["medicalRegisterResponse"]).StatusCode != 200)">
+                <return-response response-variable-name="medicalRegisterResponse" />
+            </when>
+		</choose>
+		<set-backend-service base-url="{{userApiBaseUrl}}" />
+		<rewrite-uri template="/api/v1/user/profile" />
+		<set-method>GET</set-method>
+		<set-header name="Content-Type" exists-action="override">
+			<value>application/json</value>
+		</set-header>
+		<set-header name="Authorization" exists-action="override">
+			<value>@((string)context.Variables["accessToken"])</value>
+		</set-header>
+	</inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

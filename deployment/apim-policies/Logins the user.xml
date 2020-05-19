@@ -1,0 +1,145 @@
+<policies>
+    <inbound>
+        <base />
+        <send-request mode="copy" response-variable-name="loginResponse">
+            <set-url>{{identityServerBaseUrl}}/connect/token</set-url>
+            <set-method>POST</set-method>
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/x-www-form-urlencoded</value>
+            </set-header>
+            <set-body>@{
+                var requestBody = context.Request.Body.As<JObject>(preserveContent: true);
+                var username = requestBody["username"];
+                var password = requestBody["password"];
+                return $"grant_type=password&scope={{scope}}&client_id={{clientId}}&username={username ?? string.Empty}&password={password ?? string.Empty}";
+            }</set-body>
+        </send-request>
+        <choose>
+            <when condition="@(((IResponse)context.Variables["loginResponse"]).StatusCode != 200)">
+                <return-response response-variable-name="loginResponse">
+                    <set-body>@{
+						var loginResponseObject = ((IResponse)context.Variables["loginResponse"]).Body.As<JObject>(preserveContent: true);
+						char separator = '_';
+                        
+                        var errorTarget = (loginResponseObject["error"] == null) ? string.Empty : loginResponseObject["error"].ToString().ToLower();
+                        string errorTargetResult = "UnknownLoginError";
+                        if (!string.IsNullOrWhiteSpace(errorTarget)) 
+                        {   
+                            errorTargetResult = string.Join(string.Empty, errorTarget.Split(separator)
+                                .Select(word => char.ToUpper(word[0]) + word.Substring(1)));
+                        }
+
+                        var errorDescription = (loginResponseObject["error_description"] == null) ? string.Empty : loginResponseObject["error_description"].ToString().ToLower();
+                        string errorDescriptionResult = "Unknown error.";
+                        if (!string.IsNullOrWhiteSpace(errorDescription)) 
+                        {  
+                            errorDescriptionResult = string.Join(" ", errorDescription.Split(separator)
+								.Select((word, i) => i == 0 ? char.ToUpper(word[0]) + word.Substring(1) : word)) + ".";
+                        }
+
+                        return new JObject(
+                            new JProperty("errorCode", ((IResponse)context.Variables["loginResponse"]).StatusCode.ToString()),
+                            new JProperty("errors", new JArray(new JObject(
+                                    new JProperty("errorTarget", errorTargetResult),
+                                    new JProperty("description", errorDescriptionResult))))
+                        ).ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+        </choose>
+        <set-variable name="accessToken" value="@(((IResponse)context.Variables["loginResponse"]).Body.As<JObject>(preserveContent: true)["access_token"].ToString())" />
+        <send-request mode="new" response-variable-name="introspectResponse">
+            <set-url>{{identityServerBaseUrl}}/connect/introspect</set-url>
+            <set-method>POST</set-method>
+            <set-header name="Authorization" exists-action="override">
+                <value>@($"Basic " +  Convert.ToBase64String(Encoding.UTF8.GetBytes("{{apiClientId}}:{{apiClientSecret}}")))</value>
+            </set-header>
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/x-www-form-urlencoded</value>
+            </set-header>
+            <set-body>@($"token={context.Variables["accessToken"]}")</set-body>
+        </send-request>
+        <choose>
+            <when condition="@(((IResponse)context.Variables["introspectResponse"]).StatusCode != 200)">
+                <return-response response-variable-name="introspectResponse">
+                    <set-body>@{
+						var introspectResponseObject = ((IResponse)context.Variables["introspectResponse"]).Body.As<JObject>(preserveContent: true);
+						char separator = '_';
+                        
+                        var errorTarget = (introspectResponseObject["error"] == null) ? string.Empty : introspectResponseObject["error"].ToString().ToLower();
+                        string errorTargetResult = "UnknownIntrospectError";
+                        if (!string.IsNullOrWhiteSpace(errorTarget)) 
+                        {   
+                            errorTargetResult = string.Join(string.Empty, errorTarget.Split(separator)
+                                .Select(word => char.ToUpper(word[0]) + word.Substring(1)));
+                        }					
+						
+                        var errorDescription = (introspectResponseObject["error_description"] == null) ? string.Empty : introspectResponseObject["error_description"].ToString().ToLower();
+                        string errorDescriptionResult = "Unknown error.";
+                        if (!string.IsNullOrWhiteSpace(errorDescription)) 
+                        {  
+                            errorDescriptionResult = string.Join(" ", errorDescription.Split(separator)
+								.Select((word, i) => i == 0 ? char.ToUpper(word[0]) + word.Substring(1) : word)) + ".";
+                        }
+
+                        return new JObject(
+                            new JProperty("errorCode", ((IResponse)context.Variables["introspectResponse"]).StatusCode.ToString()),
+                            new JProperty("errors", new JArray(new JObject(
+                                    new JProperty("errorTarget", errorTargetResult),
+                                    new JProperty("description", errorDescriptionResult))))
+                        ).ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+        </choose>
+        <set-backend-service base-url="{{userApiBaseUrl}}" />
+        <rewrite-uri template="/api/v1/user/profile" />
+        <set-method>GET</set-method>
+        <set-header name="Authorization" exists-action="override">
+            <value>@($"Bearer {(string)context.Variables["accessToken"]}")</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <choose>
+            <when condition="@(context.Response.StatusCode == 200)">
+                <set-body>@{
+                    var introspectResponseObject = ((IResponse)context.Variables["introspectResponse"]).Body.As<JObject>(preserveContent: true);
+                    var loginResponseObject = ((IResponse)context.Variables["loginResponse"]).Body.As<JObject>(preserveContent: true);
+                    var profileResponseObject = context.Response.Body.As<JObject>(preserveContent: true);
+                    return new JObject(
+                        new JProperty("userToken", introspectResponseObject["sub"]),
+                        new JProperty("token", 
+                            new JObject(
+                                new JProperty("accessToken", loginResponseObject["access_token"]),
+                                new JProperty("refreshToken", loginResponseObject["refresh_token"]),
+                                new JProperty("expiresIn", loginResponseObject["expires_in"])
+                            )),
+                        new JProperty("userProfile", profileResponseObject["userProfile"]),
+                        new JProperty("metadata", profileResponseObject["metadata"])
+                    ).ToString();
+                }</set-body>
+            </when>
+        </choose>
+    </outbound>
+    <on-error>
+        <return-response>
+            <set-status code="@(context.Response.StatusCode)" reason="@(context.Response.StatusReason)" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-body>@{               
+                return new JObject(
+                    new JProperty("errorCode", context.Response.StatusCode.ToString()),
+                    new JProperty("errors", new JArray(new JObject(
+                            new JProperty("errorTarget", context.LastError.Reason),
+                            new JProperty("description", context.LastError.Message))))
+                ).ToString();
+            }</set-body>
+        </return-response>
+        <base />
+    </on-error>
+</policies>

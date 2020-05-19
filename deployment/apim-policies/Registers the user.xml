@@ -1,0 +1,75 @@
+<policies>
+    <inbound>
+        <send-request mode="copy" response-variable-name="userRegisterResponse">
+            <set-url>{{userApiBaseUrl}}/api/v1/account</set-url>
+        </send-request>
+        <choose>
+            <when condition="@(((IResponse)context.Variables["userRegisterResponse"]).StatusCode.ToString() == "200")">
+                <set-variable name="accessToken" value="@(((IResponse)context.Variables["userRegisterResponse"]).Body.As<JObject>(preserveContent: true)["access_token"].ToString())" />
+                <send-request mode="new" response-variable-name="profileResponse">
+                    <set-url>{{userApiBaseUrl}}/api/v1/user/profile</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"Bearer {(string)context.Variables["accessToken"]}")</value>
+                    </set-header>
+                </send-request>
+                <choose>
+                    <when condition="@(((IResponse)context.Variables["profileResponse"]).StatusCode.ToString() == "200")">
+                        <return-response>
+                            <set-status code="200" reason="OK" />
+                            <set-header name="Content-Type" exists-action="override">
+                                <value>application/json</value>
+                            </set-header>
+                            <set-body>@{
+                                var userRegisterResponseObject = ((IResponse)context.Variables["userRegisterResponse"]).Body.As<JObject>(preserveContent: true);
+                                var profileResponseObject = ((IResponse)context.Variables["profileResponse"]).Body.As<JObject>(preserveContent: true);
+                                return new JObject(
+                                    new JProperty("token", 
+                                        new JObject(
+                                            new JProperty("accessToken", userRegisterResponseObject["access_token"]),
+                                            new JProperty("refreshToken", userRegisterResponseObject["refresh_token"]),
+                                            new JProperty("expiresIn", userRegisterResponseObject["expires_in"])
+                                        )),
+                                    new JProperty("userProfile", profileResponseObject["userProfile"]),
+                                    new JProperty("metadata", profileResponseObject["metadata"])
+                                ).ToString();
+                            }</set-body>
+                        </return-response>
+                    </when>
+                    <when condition="@(((IResponse)context.Variables["profileResponse"]).StatusCode.ToString() != "200")">
+                        <return-response response-variable-name="profileResponse" />
+                    </when>
+                </choose>
+            </when>
+            <when condition="@(((IResponse)context.Variables["userRegisterResponse"]).StatusCode.ToString() != "200")">
+                <return-response response-variable-name="userRegisterResponse" />
+            </when>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <return-response>
+            <set-status code="@(context.Response.StatusCode)" reason="@(context.Response.StatusReason)" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-body>@{               
+				return new JObject(
+					new JProperty("errorCode", context.Response.StatusCode.ToString()),
+					new JProperty("errors", new JArray(new JObject(
+							new JProperty("errorTarget", context.LastError.Reason),
+							new JProperty("description", context.LastError.Message))))
+				).ToString();
+			}</set-body>
+        </return-response>
+        <base />
+    </on-error>
+</policies>

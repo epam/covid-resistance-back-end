@@ -1,0 +1,305 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Infection.WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController">
+            <summary>
+            Provides functionality to Infection Service
+            </summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController.#ctor(Microsoft.Extensions.Logging.ILogger{Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController},Epam.CovidResistance.Services.Infection.WebApi.Interfaces.IInfectionService)">
+            <summary>Initializes a new instance of the <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController" /> class.</summary>
+            <param name="logger">The logger.</param>
+            <param name="infectionService">The infection service.</param>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController.InitStatusChange(Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeRequest)">
+            <summary>Initiates a status change request.</summary>
+            <param name="changeRequest">The change request.</param>
+            <returns></returns>
+            <remarks>Called when a doctor initiates a status change request.</remarks>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController.AcceptStatusChange(Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest)">
+            <summary>Accepts the status change request.</summary>
+            <param name="acceptRequest">The accept request.</param>
+            <returns></returns>
+            <remarks>Called when the user accepts the status change request.</remarks>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController.ActionError(System.Int32,Epam.CovidResistance.Shared.Domain.Model.Errors.InnerError)">
+            <summary>Actions the error.</summary>
+            <param name="statusCode">The status code.</param>
+            <param name="error">The error.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Controllers.InfectionController.InternalServerError(Epam.CovidResistance.Shared.Domain.Model.Errors.InnerError)">
+            <summary>The internal server error.</summary>
+            <param name="error">The error.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Entities.BlobOptions">
+            <summary>
+            Represents connection options to blob container.
+            </summary>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Entities.BlobOptions.ConnectionString">
+            <summary>Gets or sets the connection string.</summary>
+            <value>The connection string.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Entities.BlobOptions.ContainerName">
+            <summary>Gets or sets the name of the container.</summary>
+            <value>The name of the container.</value>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult">
+            <summary>
+            Represents an operation result.
+            </summary>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult.Succeeded">
+            <summary>Gets a value indicating whether this <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult" /> is succeeded.</summary>
+            <value>
+              <c>true</c> if succeeded; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult.Status">
+            <summary>Gets or sets the status.</summary>
+            <value>The Http code.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult.ErrorMessage">
+            <summary>Gets or sets the error message.</summary>
+            <value>The error message.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult.ErrorTarget">
+            <summary>Gets or sets the error target.</summary>
+            <value>The error target.</value>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult.#ctor(System.Int32,System.String,System.String)">
+            <summary>Initializes a new instance of the <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult" /> class.</summary>
+            <param name="status">The status.</param>
+            <param name="errorMessage">The error message.</param>
+            <param name="errorTarget"></param>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult.CreateInstance(System.Int32,System.String,System.String)">
+            <summary>Creates the instance.</summary>
+            <param name="status">The status.</param>
+            <param name="errorMessage">The error message.</param>
+            <param name="errorTarget">The error target.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Interfaces.IBlobStorageService">
+            <summary>
+            The BlobStorageService interface.
+            </summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Interfaces.IBlobStorageService.UploadMeetingsToContainer(System.String,Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest)">
+            <summary>
+            The upload meetings to container.
+            </summary>
+            <param name="ownerToken">
+            The owner token.
+            </param>
+            <param name="acceptRequest">
+            The accept request.
+            </param>
+            <returns>
+            The <see cref="T:System.Threading.Tasks.Task"/>.
+            </returns>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Interfaces.IInfectionService">
+            <summary>
+            The InfectionService interface.
+            </summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Interfaces.IInfectionService.InitStatusChange(System.String,Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeRequest,Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeResponse@)">
+            <summary>
+            Initialize a status changing.
+            </summary>
+            <param name="ownerToken">
+            The owner token.
+            </param>
+            <param name="changeRequest">
+            The change request.
+            </param>
+            <param name="changeResponse">
+            The change response.
+            </param>
+            <returns>
+            The <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Entities.OperationResult"/>.
+            </returns>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Interfaces.IInfectionService.AcceptStatusAsync(System.String,Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest)">
+            <summary>
+            Accept a status changing.
+            </summary>
+            <param name="ownerToken">
+            The owner token.
+            </param>
+            <param name="acceptRequest">
+            The accept request.
+            </param>
+            <returns>
+            The <see cref="T:System.Threading.Tasks.Task"/>.
+            </returns>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Mapper.MappingProfile">
+            <summary>
+            The mapping profile.
+            </summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Mapper.MappingProfile.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Mapper.MappingProfile" /> class.
+            </summary>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest">
+            <summary>
+            Represent a request to accept the changing of user status.
+            </summary>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest.MedicalCode">
+            <summary>Gets or sets the one time medical code.</summary>
+            <value>The medical code.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest.Meetings">
+            <summary>Gets or sets the token meetings.</summary>
+            <value>The meetings.</value>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest" /> class.</summary>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeRequest">
+            <summary>
+            Represent request to change user status.
+            </summary>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeRequest.StatusId">
+            <summary>Gets or sets the token status id.</summary>
+            <value>The status id.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeRequest.StatusChangedOn">
+            <summary>Gets or sets the date of status changed on.</summary>
+            <value>The status changed on.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeRequest.Comment">
+            <summary>Gets or sets the comment.</summary>
+            <value>The comment.</value>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeResponse">
+            <summary>
+            Represent a response for changing status operation.
+            </summary>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeResponse.MedicalCode">
+            <summary>Gets or sets the one time medical code.</summary>
+            <value>The medical code.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeResponse.ExpirationDate">
+            <summary>Gets or sets the expiration date.</summary>
+            <value>The expiration date.</value>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Models.Meeting">
+            <summary>
+            Meeting entity
+            </summary>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.Meeting.UserToken">
+            <summary>Gets or sets the user token.</summary>
+            <value>The user token.</value>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Models.Meeting.Timestamp">
+            <summary>Gets or sets the timestamp.</summary>
+            <value>The timestamp.</value>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Program">
+            <summary>
+            The program.
+            </summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Program.Main(System.String[])">
+            <summary>
+            The main.
+            </summary>
+            <param name="args">
+            The args.
+            </param>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Program.CreateHostBuilder(System.String[])">
+            <summary>Creates the host builder.</summary>
+            <param name="args">The arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Services.BlobStorageService">
+            <summary>
+            Represent a service to save object to blob storage.
+            </summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Services.BlobStorageService.#ctor(Azure.Storage.Blobs.BlobServiceClient,Microsoft.Extensions.Options.IOptions{Epam.CovidResistance.Services.Infection.WebApi.Entities.BlobOptions})">
+            <summary>Initializes a new instance of the <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Services.BlobStorageService" /> class.</summary>
+            <param name="blobServiceClient">The BLOB service client.</param>
+            <param name="blobOptions">The BLOB options.</param>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Services.BlobStorageService.UploadMeetingsToContainer(System.String,Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest)">
+            <summary>Uploads the meetings to container.</summary>
+            <param name="ownerToken">The owner token.</param>
+            <param name="acceptRequest">The accept request.</param>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService">
+            <summary>
+            The infection service.
+            </summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService.#ctor(AutoMapper.IMapper,Epam.CovidResistance.Shared.Infrastructure.Persistence.Repositories.IStatusChangeRepository,Epam.CovidResistance.Shared.Infrastructure.Persistence.Repositories.IUserRepository,Epam.CovidResistance.Services.Infection.WebApi.Interfaces.IBlobStorageService,Microsoft.Extensions.Options.IOptions{Epam.CovidResistance.Shared.Infrastructure.Configuration.Options.Metadata},Microsoft.Extensions.Options.IOptions{Epam.CovidResistance.Shared.Infrastructure.Configuration.Options.Backend},Microsoft.Extensions.Logging.ILogger{Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService})">
+            <summary>Initializes a new instance of the <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService" /> class.</summary>
+            <param name="mapper"></param>
+            <param name="statusChangeRepository"></param>
+            <param name="userRepository"></param>
+            <param name="blobStorageService"></param>
+            <param name="options"></param>
+            <param name="backendOptions"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService.GetMedicalCode(System.Boolean)">
+            <summary>Gets the medical code (OTP).</summary>
+            <returns></returns>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService.InitStatusChange(System.String,Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeRequest,Epam.CovidResistance.Services.Infection.WebApi.Models.ChangeResponse@)">
+            <summary>Initializes the status change.</summary>
+            <param name="ownerToken">The owner token.</param>
+            <param name="changeRequest">The change request.</param>
+            <param name="changeResponse"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService.AcceptStatusAsync(System.String,Epam.CovidResistance.Services.Infection.WebApi.Models.AcceptRequest)">
+            <summary>Accepts the status.</summary>
+            <param name="ownerToken"></param>
+            <param name="acceptRequest">The accept request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Services.InfectionService.GenerateOneTimePassword(System.Int32)">
+            <summary>Generates the one time password.</summary>
+            <returns></returns>
+        </member>
+        <member name="T:Epam.CovidResistance.Services.Infection.WebApi.Startup">
+            <summary>The startup class</summary>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>Initializes a new instance of the <see cref="T:Epam.CovidResistance.Services.Infection.WebApi.Startup"/> class.</summary>
+            <param name="configuration">The configuration.</param>
+        </member>
+        <member name="P:Epam.CovidResistance.Services.Infection.WebApi.Startup.Configuration">
+            <summary>Gets the configuration.</summary>
+            <value>The configuration.</value>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Configures the services.</summary>
+            <param name="services">The services.</param>
+            <remarks>This method gets called by the runtime. Use this method to add services to the container.</remarks>
+        </member>
+        <member name="M:Epam.CovidResistance.Services.Infection.WebApi.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.Extensions.Logging.ILoggerFactory)">
+            <summary>Configures the specified application.</summary>
+            <param name="app">The application.</param>
+            <param name="env">The env.</param>
+            <param name="loggerFactory">The logger factory</param>
+            <remarks>This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</remarks>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,53 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service base-url="{{identityServerBaseUrl}}" />
+        <rewrite-uri template="/connect/token" />
+        <set-header name="Content-Type" exists-action="override">
+            <value>application/x-www-form-urlencoded</value>
+        </set-header>
+        <set-body>@{
+            var requestBody = context.Request.Body.As<JObject>(preserveContent: true);
+            var refreshToken = requestBody["refreshToken"];
+            return $"grant_type=refresh_token&refresh_token={refreshToken}&client_id={{clientId}}";
+        }</set-body>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <choose>
+            <when condition="@(context.Response.StatusCode == 200)">
+                <set-body>@{
+                    var refreshTokenResponseObject = context.Response.Body.As<JObject>(preserveContent: true);
+                    return new JObject(
+                        new JProperty("token", 
+                            new JObject(
+                                new JProperty("accessToken", refreshTokenResponseObject["access_token"]),
+                                new JProperty("refreshToken", refreshTokenResponseObject["refresh_token"]),
+                                new JProperty("expiresIn", refreshTokenResponseObject["expires_in"])
+                            ))
+                    ).ToString();
+                }</set-body>
+            </when>
+        </choose>
+    </outbound>
+    <on-error>
+        <return-response>
+            <set-status code="@(context.Response.StatusCode)" reason="@(context.Response.StatusReason)" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-body>@{               
+				return new JObject(
+					new JProperty("errorCode", context.Response.StatusCode.ToString()),
+					new JProperty("errors", new JArray(new JObject(
+							new JProperty("errorTarget", context.LastError.Reason),
+							new JProperty("description", context.LastError.Message))))
+				).ToString();
+			}</set-body>
+        </return-response>
+        <base />
+    </on-error>
+</policies>

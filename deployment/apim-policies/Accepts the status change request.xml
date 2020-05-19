@@ -1,0 +1,68 @@
+<policies>
+    <inbound>
+        <set-variable name="accessToken" value="@(context.Request.Headers.GetValueOrDefault("Authorization"))" />
+        <send-request mode="copy" response-variable-name="acceptStatusResponse">
+            <set-url>{{infectionApiBaseUrl}}/api/v1/infection/status/accept</set-url>
+        </send-request>
+        <choose>
+            <when condition="@(((IResponse)context.Variables["acceptStatusResponse"]).StatusCode.ToString() == "200")">
+                <send-request mode="new" response-variable-name="profileResponse">
+                    <set-url>{{userApiBaseUrl}}/api/v1/user/profile</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@((string)context.Variables["accessToken"])</value>
+                    </set-header>
+                </send-request>
+                <choose>
+                    <when condition="@(((IResponse)context.Variables["profileResponse"]).StatusCode.ToString() == "200")">
+                        <return-response>
+                            <set-status code="200" reason="OK" />
+                            <set-header name="Content-Type" exists-action="override">
+                                <value>application/json</value>
+                            </set-header>
+                            <set-body>@{
+                                var profileResponseObject = ((IResponse)context.Variables["profileResponse"]).Body.As<JObject>(preserveContent: true);
+                                return new JObject(
+                                    new JProperty("userProfile", profileResponseObject["userProfile"]),
+                                    new JProperty("metadata", profileResponseObject["metadata"])
+                                ).ToString();
+                            }</set-body>
+                        </return-response>
+                    </when>
+                    <when condition="@(((IResponse)context.Variables["profileResponse"]).StatusCode.ToString() != "200")">
+                        <return-response response-variable-name="profileResponse" />
+                    </when>
+                </choose>
+            </when>
+            <when condition="@(((IResponse)context.Variables["acceptStatusResponse"]).StatusCode.ToString() != "200")">
+                <return-response response-variable-name="acceptStatusResponse" />
+            </when>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <return-response>
+            <set-status code="@(context.Response.StatusCode)" reason="@(context.Response.StatusReason)" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-body>@{               
+                return new JObject(
+                    new JProperty("errorCode", context.Response.StatusCode.ToString()),
+                    new JProperty("errors", new JArray(new JObject(
+                            new JProperty("errorTarget", context.LastError.Reason),
+                            new JProperty("description", context.LastError.Message))))
+                ).ToString();
+            }</set-body>
+        </return-response>
+        <base />
+    </on-error>
+</policies>

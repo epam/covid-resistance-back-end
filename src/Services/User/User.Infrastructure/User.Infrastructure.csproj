@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Epam.CovidResistance.Services.User.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Persistence\Migrations\20200414140602_InitialIdentityMigration.cs" />
+    <Compile Remove="Persistence\Migrations\20200414140602_InitialIdentityMigration.Designer.cs" />
+    <Compile Remove="Persistence\Migrations\20200415193619_InitialIdentityMigration.cs" />
+    <Compile Remove="Persistence\Migrations\20200415193619_InitialIdentityMigration.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\IdentityDbContext\IdentityDbContext.csproj" />
+    <ProjectReference Include="..\..\..\Shared\Infrastructure\Infrastructure.Configuration\Infrastructure.Configuration.csproj" />
+    <ProjectReference Include="..\..\..\Shared\Infrastructure\Infrastructure.Persistence\Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\User.Application\User.Application.csproj" />
+  </ItemGroup>
+
+</Project>

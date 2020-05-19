@@ -1,0 +1,9 @@
+{
+  "medicalCode": {
+    "expirationHours": 24
+  },
+  "infection": {
+    "contactLookupDays": 14,
+    "exposureNotification": "ATTENTION! Your Health Status has recently changed. Please urgently read the recommendations of your health authority to keep yourself and others safe."
+  }
+}

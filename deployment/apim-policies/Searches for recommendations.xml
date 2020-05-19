@@ -1,0 +1,30 @@
+<policies>
+    <inbound>
+        <set-backend-service base-url="{{blobBaseUrl}}" />
+        <rewrite-uri template="/recommendations/{statusId}" />
+        <set-header name="Authorization" exists-action="delete" />
+    </inbound>
+    <backend>        
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <return-response>
+            <set-status code="@(context.Response.StatusCode)" reason="@(context.Response.StatusReason)" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-body>@{               
+				return new JObject(
+					new JProperty("errorCode", context.Response.StatusCode.ToString()),
+					new JProperty("errors", new JArray(new JObject(
+							new JProperty("errorTarget", context.LastError.Reason),
+							new JProperty("description", context.LastError.Message))))
+				).ToString();
+			}</set-body>
+        </return-response>
+        <base />
+    </on-error>
+</policies>

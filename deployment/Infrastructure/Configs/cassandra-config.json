@@ -1,0 +1,10 @@
+﻿{
+  "Cassandra": {
+    "Port": 10350,
+    "Ssl": {
+      "Protocol": "Tls12",
+      "CheckCertificateRevocation": false
+    },
+    "Keyspace": "covi"
+  }
+}

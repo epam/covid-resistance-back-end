@@ -1,0 +1,40 @@
+{
+  "statuses": {
+    "values": [
+      {
+        "id": 1,
+        "name": "Healthy",
+        "severity": 0,
+        "description": "",
+        "url": "",
+        "requiresContactDiscovery": false
+      },
+      {
+        "id": 2,
+        "name": "At risk",
+        "severity": 1,
+        "description": "In the past days, you have been exposed to the COVID-19. Please follow urgently your behaviour recommendations from your local health authorities.",
+        "url": "",
+        "requiresContactDiscovery": false
+      },
+      {
+        "id": 3,
+        "name": "Infected",
+        "severity": 2,
+        "description": "Your Health Status has changed. Please follow urgently your behaviour recommendations from your local health authorities.",
+        "url": "",
+        "requiresContactDiscovery": true
+      },
+      {
+        "id": 4,
+        "name": "Recovered",
+        "severity": 0,
+        "description": "",
+        "url": "",
+        "requiresContactDiscovery": false
+      }
+    ],
+    "default": 1,
+    "onExposure": 2
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "Epam.CovidResistance.Services.Infection.FnApp": "Information"
+    }
+  },
+  // Configuration settings for 'queue' triggers. (Optional)
+  "queues": {
+    // The number of queue messages to retrieve and process in
+    // parallel (per job function). The default is 16 and the maximum is 32.
+    "batchSize": 16,
+    "maxDequeueCount": 5
+  },
+  "extensions": {
+    "serviceBus": {
+      "messageHandlerOptions": {
+        "autoComplete": false
+      }
+    }
+  }
+}

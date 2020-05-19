@@ -1,0 +1,107 @@
+openapi: 3.0.6
+info:
+  title: Maintenance endpoints
+  version: v1
+  description: Available API's.
+paths:
+  /admin/login:
+    parameters:
+      - $ref: '#/components/parameters/correlationId'
+    post:
+      tags:
+        - Admin
+      summary: Logins the user for administrative purposes.  
+      description: Logins the user for administrative purposes.
+      operationId: "adminLogin"      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+  /admin/generateHealthSecurityIds:
+    parameters:
+      - $ref: '#/components/parameters/correlationId'
+    post:
+      tags:
+        - Admin
+      summary: Generates health security ids. 
+      description: Called when an admin wants to generate new validity codes for doctor registration.
+      operationId: "generateHealthSecurityIds"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDoctorCodesRequest'
+      responses:
+        '200':
+          description: Security codes are created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityCodesList'
+components:
+  parameters:
+    correlationId:
+      in: header
+      name: X-Correlation-Id
+      schema:
+        type: string
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "Username"
+        password:
+          type: string
+          example: "Password"
+      required:
+        - username
+        - password
+    Token:
+      type: object
+      properties:
+        accessToken: 
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+          format: int32
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          $ref: '#/components/schemas/Token'
+    GenerateDoctorCodesRequest:
+      type: object
+      properties:
+        numberOfCodes:
+          type: integer
+          example: 1
+        codeLength:
+          type: integer
+          format: int32
+          example: 8
+        comment:
+          type: string
+          example: "Doctors for XXX hospital."
+      required:
+        - numberOfCodes
+        - codeLength
+    SecurityCodesList:
+      type: object
+      properties:
+        healthSecurityIds:
+          type: array
+          items:
+            type: string
+            example: "UCS265DA"
